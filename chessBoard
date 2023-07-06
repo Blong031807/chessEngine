@@ -1,0 +1,229 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using System;
+
+public class chessboard : MonoBehaviour
+{
+    public ulong whitePawns;
+    public ulong whiteKnights;
+    public ulong whiteBishops;
+    public ulong whiteRooks;
+    public ulong whiteQueens;
+    public ulong whiteKings;
+
+    public ulong blackPawns;
+    public ulong blackKnights;
+    public ulong blackBishops;
+    public ulong blackRooks;
+    public ulong blackQueens;
+    public ulong blackKings;
+
+    public GameObject lightSqr;
+    public GameObject darkSqr;
+    public GameObject board;
+    public bool turn;
+    public string FEN = "pppppppp";
+    public int halfturnNumber = 0;
+    public int File = 0;
+    public int Rank = 0;
+    public int piece;
+    public bool FENNU;
+    public bool wKC;
+    public bool wQC;
+    public bool bKC;
+    public bool bQC;
+    void Awake()
+    {
+        whitePawns = 0b00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000;
+        whiteKnights = 0b00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000;
+        whiteBishops = 0b00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000;
+        whiteRooks = 0b00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000;
+        whiteQueens = 0b00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000;
+        whiteKings = 0b00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000;
+
+        ulong blackPawns = 0b00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000;
+        ulong blackKnights = 0b00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000;
+        ulong blackBishops = 0b00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000;
+        ulong blackRooks = 0b00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000;
+        ulong blackQueens = 0b00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000;
+        ulong blackKings = 0b00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000;
+        ulong allPieces = whitePawns | whiteKnights | whiteBishops | whiteRooks | whiteQueens | whiteKings | blackPawns | blackKnights | blackBishops | blackRooks | blackQueens | blackKings;
+        ulong blackPieces = blackPawns | blackKnights | blackBishops | blackRooks | blackQueens | blackKings;
+        ulong whitePieces = whitePawns | whiteKnights | whiteBishops | whiteRooks | whiteQueens | whiteKings;
+        allPieces = whitePawns | whiteKnights | whiteBishops | whiteRooks | whiteQueens | whiteKings | blackPawns | blackKnights | blackBishops | blackRooks | blackQueens | blackKings;
+        blackPieces = blackPawns | blackKnights | blackBishops | blackRooks | blackQueens | blackKings;
+        whitePieces = whitePawns | whiteKnights | whiteBishops | whiteRooks | whiteQueens | whiteKings;
+    }
+    // Start is called before the first frame update
+    void Start()
+    {
+        var SquareScript = lightSqr.GetComponent<squareScript>();
+        var DrkSquareScript = darkSqr.GetComponent<squareScript>();
+
+        for (File = 0; File < 8; File++)
+        {
+            for (Rank = 0; Rank < 8; Rank++)
+            {
+                bool light = (File + Rank) % 2 != 0;
+                var squareColor = light ? lightSqr : darkSqr;
+                var position = new Vector2(-3.5f + File, -3.5f + Rank);
+
+                SquareScript.SqrRank = Rank;
+                SquareScript.SqrFile = File;
+                DrkSquareScript.SqrRank = Rank;
+                DrkSquareScript.SqrFile = File;
+                Instantiate(squareColor, position, Quaternion.identity, board.transform);
+
+
+
+            }
+        }
+
+
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+
+        if (FENNU)
+        {
+            File = 0;
+            Rank = 7;
+            for (int x = 0; x < FEN.Length; x++)
+            {  
+                Debug.Log("File: " + File);
+                Debug.Log("Rank: " + Rank);
+                if (File == 8 && Rank == 0)
+                {
+                    Debug.Log("No Clue Why It's Not Working Boss");
+                    if (FEN[x] == 'w')
+                    {
+                        halfturnNumber = 0;
+                    }
+                    if (FEN[x] == 'b')
+                    {
+                        halfturnNumber++;
+                    }
+                    if (FEN[x] == 'K')
+                    {
+                        wKC = true;
+                    }
+                    if (FEN[x] == 'Q')
+                    {
+                        wQC = true;
+                    }
+                    if (FEN[x] == 'k')
+                    {
+                        bKC = true;
+                    }
+                    if (FEN[x] == 'q')
+                    {
+                        bQC = true;
+                    }
+                    if (FEN[x] == '-')
+                    {
+                        bQC = false;
+                        bKC = false;
+                        wQC = false;
+                        wKC = false;
+                    }
+                }
+                else
+                {
+                    if (char.IsDigit(FEN[x]))
+                    {
+                        File += int.Parse(FEN[x].ToString());
+                    }
+                    else if (FEN[x] == '/')
+                    {
+                        Rank--;
+                        File = 0;
+                    }
+                    else
+                    {
+                        int bitPosition = CalculateBitPosition(File, Rank);
+                        ulong mask = 1UL << bitPosition;
+
+                        if (FEN[x] == 'p')
+                        {
+                            blackPawns |= mask;
+                        }
+                        else if (FEN[x] == 'q')
+                        {
+                            blackQueens |= mask;
+                        }
+                        else if (FEN[x] == 'n')
+                        {
+                            blackKnights |= mask;
+                        }
+                        else if (FEN[x] == 'b')
+                        {
+                            blackBishops |= mask;
+                        }
+                        else if (FEN[x] == 'r')
+                        {
+                            blackRooks |= mask;
+                        }
+                        else if (FEN[x] == 'k')
+                        {
+                            blackKings |= mask;
+                        }
+                        else if (FEN[x] == 'P')
+                        {
+                            whitePawns |= mask;
+                        }
+                        else if (FEN[x] == 'Q')
+                        {
+                            whiteQueens |= mask;
+                        }
+                        else if (FEN[x] == 'N')
+                        {
+                            whiteKnights |= mask;
+                        }
+                        else if (FEN[x] == 'B')
+                        {
+                            whiteBishops |= mask;
+                        }
+                        else if (FEN[x] == 'R')
+                        {
+                            whiteRooks |= mask;
+                        }
+                        else if (FEN[x] == 'K')
+                        {
+                            whiteKings |= mask;
+                        }
+
+                        File++;
+                        
+                    }
+                }
+               
+            }
+
+           
+            Debug.Log("Black Pawns: " + Convert.ToString((long)blackPawns, 2).PadLeft(64, '0'));
+            Debug.Log("Black Knights: " + Convert.ToString((long)blackKnights, 2).PadLeft(64, '0'));
+            Debug.Log("Black Bishops: " + Convert.ToString((long)blackBishops, 2).PadLeft(64, '0'));
+            Debug.Log("Black Rooks: " + Convert.ToString((long)blackRooks, 2).PadLeft(64, '0'));
+            Debug.Log("Black Queens: " + Convert.ToString((long)blackQueens, 2).PadLeft(64, '0'));
+            Debug.Log("Black Kings: " + Convert.ToString((long)blackKings, 2).PadLeft(64, '0'));
+
+            Debug.Log("White Pawns: " + Convert.ToString((long)whitePawns, 2).PadLeft(64, '0'));
+            Debug.Log("White Knights: " + Convert.ToString((long)whiteKnights, 2).PadLeft(64, '0'));
+            Debug.Log("White Bishops: " + Convert.ToString((long)whiteBishops, 2).PadLeft(64, '0'));
+            Debug.Log("White Rooks: " + Convert.ToString((long)whiteRooks, 2).PadLeft(64, '0'));
+            Debug.Log("White Queens: " + Convert.ToString((long)whiteQueens, 2).PadLeft(64, '0'));
+            Debug.Log("White Kings: " + Convert.ToString((long)whiteKings, 2).PadLeft(64, '0'));
+
+            FENNU = false;
+        }
+    }
+
+        int CalculateBitPosition(int file, int rank)
+        {
+            return rank * 8 + file;
+        }
+    
+}
