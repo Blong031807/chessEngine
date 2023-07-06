@@ -1,0 +1,158 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class squareScript : MonoBehaviour
+{   public int piece;
+    public GameObject pieceShower;
+    public int SqrRank;
+    public int SqrFile;
+    public GameObject board;
+    public Sprite[] sprites;
+    public int x = 13;
+    public bool FENNY;
+    public bool showmove;
+    public int position;
+    // Start is called before the first frame update
+    void Start()
+    {
+        position = (8 * SqrRank) + SqrFile;
+
+
+    }
+    public  void UpdateSprite()
+    {
+       
+        var rend = pieceShower.GetComponent<SpriteRenderer>();
+        
+            x = piece;
+        
+       
+       
+            rend.sprite = sprites[x];
+
+        
+
+    }
+    // Update is called once per frame
+    void Update()
+    {    var talk = board.GetComponent<chessboard>();
+      
+
+        if (talk.FENNU == false)
+        {
+            bool set = ((talk.whitePawns >> position) & 1) != 0;
+            if (set)
+            {
+                piece = 1;
+            }
+            else
+            {
+                set = ((talk.whiteKnights >> position) & 1) != 0;
+                if (set)
+                {
+                    piece = 2;
+                }
+                else
+                {
+                    set = ((talk.whiteBishops >> position) & 1) != 0;
+                    if (set)
+                    {
+                        piece = 3;
+                    }
+                    else
+                    {
+                        set = ((talk.whiteRooks >> position) & 1) != 0;
+                        if (set)
+                        {
+                            piece = 4;
+                        }
+                        else
+                        {
+                            set = ((talk.whiteQueens >> position) & 1) != 0;
+                            if (set)
+                            {
+                                piece = 5;
+                            }
+                            else
+                            {
+                                set = ((talk.whiteKings >> position) & 1) != 0;
+                                if (set)
+                                {
+                                    piece = 6;
+                                }
+                                else
+                                {
+                                    set = ((talk.blackPawns >> position) & 1) != 0;
+                                    if (set)
+                                    {
+                                        piece = 7;
+                                    }
+                                    else
+                                    {
+                                        set = ((talk.blackKnights >> position) & 1) != 0;
+                                        if (set)
+                                        {
+                                            piece = 8;
+                                        }
+                                        else
+                                        {
+                                            set = ((talk.blackBishops >> position) & 1) != 0;
+                                            if (set)
+                                            {
+                                                piece = 9;
+                                            }
+                                            else
+                                            {
+                                                set = ((talk.blackRooks >> position) & 1) != 0;
+                                                if (set)
+                                                {
+                                                    piece = 10;
+                                                }
+                                                else
+                                                {
+                                                    set = ((talk.blackQueens >> position) & 1) != 0;
+                                                    if (set)
+                                                    {
+                                                        piece = 11;
+                                                    }
+                                                    else
+                                                    {
+                                                        set = ((talk.blackKings >> position) & 1) != 0;
+                                                        if (set)
+                                                        {
+                                                            piece = 12;
+                                                        }
+                                                        else
+                                                        {
+                                                            piece = 0;
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if (showmove == true)
+        {
+            if (piece == 1)
+            {
+
+            }
+
+        }
+
+        UpdateSprite();
+    }
+
+     
+        
+
+    
+}
